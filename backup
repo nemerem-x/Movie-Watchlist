@@ -1,0 +1,131 @@
+const submit = document.getElementById('submit')
+const search = document.getElementById('search')
+const section = document.getElementById('section')
+const section2 = document.getElementById('section2')
+
+let myWatchlist = []
+
+const lookup = async (e) => {
+    e.preventDefault()
+    const response = await fetch(`http://www.omdbapi.com/?s=${search.value}&apikey=91eddb76`)
+    const data = await response.json()
+
+    const movieId = data.Search.map((movie) => {
+        return movie.imdbID
+    })
+
+    section.innerHTML = ''
+
+    movieId.map(async (id) => {
+        const res = await fetch(`http://www.omdbapi.com/?i=${id}&apikey=91eddb76`)
+        const data2 = await res.json()
+
+        section.innerHTML += `
+            <div class="container" data-id="${id}">
+                <div class="movie-details">
+                    <img src="${data2.Poster}" alt="missing poster">
+                    <div class="movie-info">
+                        <p id="movie-title">${data2.Title}<span><i class="fa-solid fa-star"></i>${data2.imdbRating}</span></p>
+                        <div class="time-type">
+                            <p>${data2.Runtime}</p>
+                            <p>${data2.Genre}</p>
+                            <button id="add-watchlist"><i class="fa-solid fa-circle-plus"></i>Add</button>
+                        </div>
+                        <p id="description">${data2.Plot}</p>
+                    </div>
+                </div>
+            </div>
+        `
+        myWatchlist = JSON.parse(localStorage.getItem('myMovieId'))
+
+        let myIDs = []
+        let container2 = [...document.querySelectorAll('.container')]
+        const addBtns = document.querySelectorAll('#add-watchlist')
+        console.log(addBtns)
+
+        const jake = new Array('phil', 'rose', 'cate')
+        console.log(jake)
+
+        // container2.map(contain => {
+        //     // myIDs = contain.getAttribute('data-id')
+
+        //     // const check = myWatchlist.indexOf(myIDs) !== -1
+        //     // console.log(check)
+
+        //     // if (multipleExist){
+        //     //     addBtns.forEach(addBtn => {
+        //     //     addBtn.innerHTML = `<i class="fa-solid fa-check"></i>Watchlist`
+        //     //     })
+        //     // }
+            
+        // })
+        
+        addBtns.forEach(addBtn => {
+            addBtn.addEventListener('click', (e) => {
+                let container = e.currentTarget.parentElement.parentElement.parentElement.parentElement
+                let data_id = container.getAttribute('data-id')
+
+                if (!myWatchlist.includes(data_id)) {
+                    myWatchlist.push(data_id)
+                }
+
+                if(myWatchlist.includes(data_id)){
+                    addBtn.innerHTML = `<i class="fa-solid fa-check"></i>Watchlist`
+                }
+
+                localStorage.setItem('myMovieId', JSON.stringify(myWatchlist))
+            })
+        })
+    })
+    
+}
+
+if (submit) {
+    submit.addEventListener('click', lookup)
+}
+
+
+
+function pageLoad(){
+        // localStorage.clear()
+    myWatchlist = JSON.parse(localStorage.getItem('myMovieId'))
+
+    myWatchlist.map(async (id2) => {
+        const res = await fetch(`http://www.omdbapi.com/?i=${id2}&apikey=91eddb76`)
+        const data3 = await res.json()
+
+        section2.innerHTML += `
+            <div class="container" data-id="${id2}">
+                <div class="movie-details">
+                    <img src="${data3.Poster}" alt="missing poster">
+                    <div class="movie-info">
+                        <p id="movie-title">${data3.Title}<span><i class="fa-solid fa-star"></i>${data3.imdbRating}</span></p>
+                        <div class="time-type">
+                            <p>${data3.Runtime}</p>
+                            <p>${data3.Genre}</p>
+                            <button id="remove-watchlist"><i class="fa-solid fa-circle-minus"></i>Remove</button>
+                        </div>
+                        <p id="description">${data3.Plot}</p>
+                    </div>
+                </div>
+            </div>
+        `
+        const removeBtns = document.querySelectorAll('#remove-watchlist')
+
+        removeBtns.forEach(removeBtn => {
+            removeBtn.addEventListener('click', (e) => {
+                const container = e.currentTarget.parentElement.parentElement.parentElement.parentElement
+                const data_id = container.getAttribute('data-id')
+                
+                container.classList.add('remove')
+
+                let index = myWatchlist.indexOf(data_id)
+                
+                myWatchlist.splice(index, 1)
+
+                localStorage.setItem('myMovieId', JSON.stringify(myWatchlist))
+            })
+        })
+    })
+}
+
