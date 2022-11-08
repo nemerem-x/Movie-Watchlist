@@ -13,8 +13,7 @@ body {
     justify-content: space-between;
     align-items: center;
     position: relative;
-    margin: auto;
-    width: 80%;
+    width: 100%;
     height: 200px;
     background-image: url(./images/imagebg.png);
     background-repeat: no-repeat;
@@ -28,20 +27,28 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 30px;
+    flex-wrap:wrap-reverse;
 }
 
 .title h1 {
     font-size: 3rem;
+    margin: 0;
 }
 
 .title a {
-    color: #fff;
+    color: #000;
     text-decoration: none;
+    background-color: #1ec756;
+    padding: .5em;
+    border-radius: 3px;
 }
 
+.title p {
+    text-align: right;
+}
 
 .search-bar {
-    width: 80%;
+    width: 58%;
     position: absolute;
     top: 100%;
     left: 50%;
@@ -109,7 +116,6 @@ body {
     width: 100%;
     display: flex;
     gap: 10px;
-    align-items: center;
 }
 
 .movie-details img {
@@ -138,10 +144,14 @@ body {
 #movie-title {
     font-weight: 800;
     font-size: 1.2rem;
+    margin-top: 0;
+    width: 100%;
 }
 
 .time-type {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
     align-items: center;
 }
 
@@ -204,4 +214,14 @@ body {
 
 #section2 {
     height: 300px;
+}
+
+@media screen and (max-width: 760px) {
+    .search-bar {
+        width: 90%;
+    }
+
+    .container {
+        width: 89%;
+    }
 }

@@ -7,55 +7,46 @@ let myWatchlist = []
 
 const lookup = async (e) => {
     e.preventDefault()
-    const response = await fetch(`http://www.omdbapi.com/?s=${search.value}&apikey=91eddb76`)
-    const data = await response.json()
-
-    if (!data.ok){
-        // throw Error('errrrorrrr')
-        section.innerHTML = '<p>No movie</p>'
-    }
-
-    const movieId = data.Search.map(movie => movie.imdbID)
-
+    const res = await fetch(`https://api.themoviedb.org/3/search/movie?query=${search.value}&api_key=c8370278578be5adef5adc28cd4c442c`)
+    const data = await res.json()
+    
     section.innerHTML = ''
 
-    let searchResults = await Promise.all(movieId.map(async (id) => {
-            const res = await fetch(`http://www.omdbapi.com/?i=${id}&apikey=91eddb76`)
-            const data2 = await res.json()
-            return data2
-        })
+    const movieId = await Promise.all(data.results.map(async (movie) => {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=c8370278578be5adef5adc28cd4c442c`)
+            const data = await res.json()
+            return data
+         })
     )
 
-    let postHtml = searchResults.map( data2 => {
-        let {imdbID, Poster, Title, imdbRating, Runtime, Genre, Plot} = data2
+    const theMovie = movieId.map(data => {
+        let {id, poster_path, title, vote_average, runtime, genres, overview} = data
         return `
-            <div class="container" data-id="${imdbID}">
+            <div class="container" data-id="${id}">
                 <div class="movie-details">
-                    <img src="${Poster}" alt="missing poster">
+                    <img src="https://image.tmdb.org/t/p/w500${poster_path}" alt="missing poster">
                     <div class="movie-info">
-                        <p id="movie-title">${Title}<span><i class="fa-solid fa-star"></i>${imdbRating}</span></p>
+                        <p id="movie-title">${title}<span><i class="fa-solid fa-star"></i>${vote_average}</span></p>
                         <div class="time-type">
-                            <p>${Runtime}</p>
-                            <p>${Genre}</p>
+                            <p>${runtime} mins</p>
+                            <p>${genres[0].name}</p>
                             <button id="add-watchlist"><i class="fa-solid fa-circle-plus"></i>Add</button>
                         </div>
-                        <p id="description">${Plot}</p>
+                        <p id="description">${overview}</p>
                     </div>
                 </div>
             </div>
         `
     }).join('')
 
-    section.innerHTML = postHtml
-    
+    section.innerHTML = theMovie
+
     myWatchlist = JSON.parse(localStorage.getItem('myMovieId'))
 
     if (!myWatchlist){
         myWatchlist = []
     }
 
-    let myIDs = []
-    let intersection = []
     const container2 = document.querySelectorAll('.container')
     const addBtns = document.querySelectorAll('#add-watchlist')
     
@@ -96,25 +87,24 @@ if (submit) {
 }
 
 function pageLoad(){
-        // localStorage.clear()
     myWatchlist = JSON.parse(localStorage.getItem('myMovieId'))
 
     myWatchlist.map(async (id2) => {
-        const res = await fetch(`http://www.omdbapi.com/?i=${id2}&apikey=91eddb76`)
+        const res = await fetch(`https://api.themoviedb.org/3/movie/${id2}?api_key=c8370278578be5adef5adc28cd4c442c`)
         const data3 = await res.json()
 
         section2.innerHTML += `
             <div class="container" data-id="${id2}">
                 <div class="movie-details">
-                    <img src="${data3.Poster}" alt="missing poster">
+                    <img src="https://image.tmdb.org/t/p/w500${data3.poster_path}" alt="missing poster">
                     <div class="movie-info">
-                        <p id="movie-title">${data3.Title}<span><i class="fa-solid fa-star"></i>${data3.imdbRating}</span></p>
+                        <p id="movie-title">${data3.title}<span><i class="fa-solid fa-star"></i>${data3.vote_average}</span></p>
                         <div class="time-type">
-                            <p>${data3.Runtime}</p>
-                            <p>${data3.Genre}</p>
+                            <p>${data3.runtime} mins</p>
+                            <p>${data3.genres[0].name}</p>
                             <button id="remove-watchlist"><i class="fa-solid fa-circle-minus"></i>Remove</button>
                         </div>
-                        <p id="description">${data3.Plot}</p>
+                        <p id="description">${data3.overview}</p>
                     </div>
                 </div>
             </div>
